@@ -31,12 +31,11 @@ public class LevelEditorScene : Scene
             BoxCollider2D collider = (BoxCollider2D)ob.AddComponent(new BoxCollider2D());
             RigidBody rigid = (RigidBody)ob.AddComponent(new RigidBody());
             
-
             AddGameObjectToScene(ob);
         }
         
         _currentSelectedAsset = Gameobjects[0];
-        Gameobjects[0].Transform.Rotation.Z = .45f;
+        Gameobjects[0].Transform.Rotation.Z = 32;
         
         base.Init();
     }
@@ -55,10 +54,33 @@ public class LevelEditorScene : Scene
     public override void Update(float dt)
     {
         base.Update(dt);
+
+        if (Input.KeyDown(Keys.Left))
+        {
+            CurrentCamera.position.X -= 100 * dt;
+        }
+        
+        if (Input.KeyDown(Keys.Right))
+        {
+            CurrentCamera.position.X += 100 * dt;
+        }
+        
+        if (Input.KeyDown(Keys.Up))
+        {
+            CurrentCamera.position.Y+= 100 * dt;
+        }
+        
+        if (Input.KeyDown(Keys.Down))
+        {
+            CurrentCamera.position.Y -= 100 * dt;
+        }
         
         if (Input.KeyPress(Keys.A))
             _enabled = !_enabled;
-        
+
+        if (_enabled)
+            Gameobjects[0].Transform.Position = Input.MousePosition;
+
         if (Input.KeyDown(Keys.S))
         {
             SaveScene();

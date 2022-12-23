@@ -44,6 +44,18 @@ public class Camera
             viewMatrix = Matrix4.LookAt(new Vector3(position.X, position.Y, 0), new Vector3(position.X, position.Y, 0) + _front, _up);
             Matrix4.Invert(viewMatrix, out inverseView);
             return viewMatrix;
+
+            Vector3 cameraFront = new Vector3(0, 0, -1);
+            Vector3 cameraUp = new Vector3(0, 1, 0);
+            
+            Matrix4 view = Matrix4.Identity;
+            
+            view *= Matrix4.LookAt(new Vector3(position.X, position.Y, 20.0f),
+                cameraFront + new Vector3(position.X, position.Y, 20.0f), cameraUp);
+
+            inverseView = view.Inverted();
+                
+            return view;
         }
 
         public Matrix4 GetProjectionMatrix()

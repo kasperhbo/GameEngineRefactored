@@ -38,3 +38,7 @@ D:\dev\OpenTK\GameEngine\GameEngine\bin\Debug\net6.0\Newtonsoft.Json.dll
 D:\dev\OpenTK\GameEngine\GameEngine\bin\Debug\net6.0\Box2DSharp.dll
 D:\dev\OpenTK\GameEngine\GameEngine\bin\Debug\net6.0\Box2DSharp.pdb
 D:\dev\OpenTK\GameEngine\GameEngine\bin\Debug\net6.0\Box2DSharp.xml
+D:\dev\OpenTK\GameEngine\GameEngine\bin\Debug\net6.0\Accord.dll.config
+D:\dev\OpenTK\GameEngine\GameEngine\bin\Debug\net6.0\Accord.dll
+D:\dev\OpenTK\GameEngine\GameEngine\bin\Debug\net6.0\Accord.Math.Core.dll
+D:\dev\OpenTK\GameEngine\GameEngine\bin\Debug\net6.0\Accord.Math.dll

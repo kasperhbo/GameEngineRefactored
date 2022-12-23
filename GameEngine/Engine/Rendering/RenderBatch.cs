@@ -1,16 +1,22 @@
 ﻿using System.Numerics;
+using Accord.Math;
 using GameEngine.Engine.Components;
 using GameEngine.Engine.Core;
 using GameEngine.Engine.Inputs;
 using GameEngine.Engine.Utilities;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using Matrix4x4 = Accord.Math.Matrix4x4;
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = OpenTK.Mathematics.Vector3;
 using Vector4 = OpenTK.Mathematics.Vector4;
 
 namespace GameEngine.Engine.Rendering
 {
+    /// <summary>
+    /// TODO: REFACTOR THIS TO MY OWN CODE,
+    /// HAD THIS LEFT FROM FOLLOWING GAMES WITH GABE TUTORIALS 
+    /// </summary>
     public class RenderBatch : IComparable<RenderBatch>
     {
         private readonly int _colorOffset;
@@ -45,7 +51,7 @@ namespace GameEngine.Engine.Rendering
         public bool TextureRoom => textures.Count < 8;
         public int ZIndex { get; }
         
-        public RenderBatch(int zIndex, int maxBatchSize = 10000)
+        public RenderBatch(int zIndex, int maxBatchSize = 100)
         {
             this.ZIndex = zIndex;
             _positionOffset = 0;
@@ -185,100 +191,6 @@ namespace GameEngine.Engine.Rendering
 
         private void LoadVertexProperties(int index)
         {
-            // var sprite = _sprites[index];
-            //
-            // //Find offset in array
-            // var offset = index * 4 * _vertexSize;
-            //
-            // float xAdd = 1;
-            // float yAdd = 1;
-            //
-            // var color = sprite.Color;
-            // var texCoords = sprite.TextureCoords;
-            //
-            // var texId = 0;
-            //
-            // //Find texture in textures list
-            // if (sprite.Texture != null)
-            //     for (var i = 0; i < textures.Count; i++)
-            //         if (textures[i].Equals(sprite.Texture))
-            //         {
-            //             texId = i + 1;
-            //             break;
-            //         }
-            //
-            // Transform transform = sprite.Parent.Transform;
-            // float rotZ = transform.Rotation.Z;
-            //
-            // bool isRotated = rotZ != 0.0f;
-            //
-            // Matrix4 transformMatrix = Matrix4.Identity;
-            //
-            // if (isRotated)
-            // {
-            //     Console.WriteLine("is Rotated");
-            //     transformMatrix = transformMatrix * Matrix4.CreateTranslation(transform.Position.X, transform.Position.Y, 0f);    
-            //     transformMatrix = transformMatrix * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotZ));
-            //     transformMatrix = transformMatrix * Matrix4.CreateScale(transform.Scale.X, transform.Scale.Y, 0);
-            // }
-            //
-            // for (var i = 0; i < 4; i++)
-            // {
-            //     if (i == 1)
-            //         yAdd = 0.0f;
-            //     else if (i == 2)
-            //         xAdd = 0.0f;
-            //     else if (i == 3)
-            //         yAdd = 1.0f;
-            //     
-            //     
-            //
-            //     
-            //     // sprite.Parent.Transform.Position.X +
-            //     //     xAdd * sprite.Parent.Transform.Scale.X;
-            //     //
-            //     // sprite.Parent.Transform.Position.Y +
-            //     //     yAdd * sprite.Parent.Transform.Scale.Y;
-            //     
-            //     Vector4 currentPos = new Vector4(sprite.Parent.Transform.Position.X + (xAdd * sprite.Parent.Transform.Scale.X),
-            //         sprite.Parent.Transform.Position.Y + (yAdd * sprite.Parent.Transform.Scale.Y),
-            //         0, 1);
-            //     
-            //     if (isRotated)
-            //     {
-            //         currentPos = Vector4.Transform(currentPos, transformMatrix);
-            //     }
-            //
-            //     // uf*()
-            //     
-            //     _vertices[offset] = sprite.Parent.Transform.Position.X +
-            //              xAdd * sprite.Parent.Transform.Scale.X;
-            //     
-            //        //Calculate transformation matrix
-            //    
-            //         //
-            //         // sprite.Parent.Transform.Position.Y +
-            //         //     yAdd * sprite.Parent.Transform.Scale.Y;
-            //                         
-            //
-            //     _vertices[offset + 1] =                      sprite.Parent.Transform.Position.Y +
-            //              yAdd * sprite.Parent.Transform.Scale.Y;
-            //
-            //     //Load color
-            //     _vertices[offset + 2] = color.X;
-            //     _vertices[offset + 3] = color.Y;
-            //     _vertices[offset + 4] = color.Z;
-            //     _vertices[offset + 5] = color.W;
-            //
-            //     //load tex coord
-            //     _vertices[offset + 6] = texCoords[i].X;
-            //     _vertices[offset + 7] = texCoords[i].Y;
-            //
-            //     //load tex id
-            //     _vertices[offset + 8] = texId;
-            //
-            //     offset += _vertexSize;
-            // }
             SpriteRenderer spriteRenderer = this._sprites[index];
 
             int offset = index * 4 * this._vertexSize;
@@ -302,60 +214,92 @@ namespace GameEngine.Engine.Rendering
             }
 
             bool rotated = spriteRenderer.Parent.Transform.Rotation.Z != 0;
-            Matrix4 transformMatrix = Matrix4.Identity;
             
-            if (rotated)
-            {
-                Transform transform = spriteRenderer.Parent.Transform;
-                
-                transformMatrix = transformMatrix * Matrix4.CreateTranslation(
-                    transform.Position.X, transform.Position.Y,0
-                    );
-                
-                transformMatrix = transformMatrix * Matrix4.CreateFromAxisAngle(new Vector3(0, 0, 1), 0f);
-                
-                transformMatrix = transformMatrix * Matrix4.CreateScale(transform.Scale.X, transform.Scale.Y, 1);
-            }
+            Transform transform = spriteRenderer.Parent.Transform;
             
-            float xAdd = .5f;
-            float yAdd = .5f;
+            //TAKEN FROM GAMES WITH GABE TUTORIAL, Mario Engine in Java/LWJGL
+            //https://www.youtube.com/c/GamesWithGabe
+            //
+            
+            Vector2 pos = transform.Position;
+            Vector2 scale = transform.Scale;
+            System.Numerics.Matrix4x4 t = System.Numerics.Matrix4x4.Identity;
+            t =     System.Numerics.Matrix4x4.CreateTranslation(pos.X, pos.Y,0);
+            t = t * System.Numerics.Matrix4x4.CreateRotationZ(MathHelper.DegreesToRadians(transform.Rotation.Z));
+            t.M41 = pos.X; 
+            t.M42 = pos.Y;
+            
+            var m11 = t.M11 * scale.X;
+            var m12 = t.M12 * scale.X;
+            var m13 = t.M13 * scale.X;
+            var m14 = t.M14 * scale.X;
+            
+            var m21 = t.M21 * scale.Y;
+            var m22 = t.M22 * scale.Y;
+            var m23 = t.M23 * scale.Y;
+            var m24 = t.M24 * scale.Y;
 
-            for (int i = 0; i < 4; i++)
-            {
-                if (i == 1)
-                {
+            var m31 = t.M31 * 1;
+            var m32 = t.M32 * 1;
+            var m33 = t.M33 * 1;
+            var m34 = t.M34 * 1;
+            
+            var m41 = t.M41;
+            var m42 = t.M42;
+            var m43 = t.M43;
+            var m44 = t.M44;
+                              
+            
+            t = new System.Numerics.Matrix4x4(
+                m11,m12,m13,m14,
+                m21,m22,m23,m24,
+                m31,m32,m33,m34,
+                m41,m42,m43,m44
+            );
+            
+            Console.WriteLine(t);
+            Console.WriteLine("////////////");
+            // _Matrix4.CreateScale();
+            
+
+            float xAdd = 0.5f;
+            float yAdd = 0.5f;
+            
+            for (int i=0; i < 4; i++) {
+                if (i == 1) {
                     yAdd = -0.5f;
-                }else if (i ==2)
-                {
+                } else if (i == 2) {
                     xAdd = -0.5f;
-                }else if (i == 3)
-                {
+                } else if (i == 3) {
                     yAdd = 0.5f;
                 }
                 
-                Vector4 currentPos = new Vector4(spriteRenderer.Parent.Transform.Position.X + (xAdd * spriteRenderer.Parent.Transform.Scale.X),
-                    spriteRenderer.Parent.Transform.Position.Y + (yAdd * spriteRenderer.Parent.Transform.Scale.Y),
+                Vector4 currentPos = new Vector4(transform.Position.X + (xAdd * transform.Scale.X),
+                    transform.Position.Y + (yAdd * transform.Scale.Y),
                     0, 1);
-                
-                if (rotated) {
-                    currentPos =  Input.Temp(transformMatrix, new Vector4(xAdd, yAdd, 0, 1));
-                    _vertices[offset] = currentPos.X;
-                    _vertices[offset + 1] = currentPos.Y;
-                    
-                    _vertices[offset + 2] = color.X;
-                    _vertices[offset + 3] = color.Y;
-                    _vertices[offset + 4] = color.Z;
-                    _vertices[offset + 5] = color.W;
-                    
-                    _vertices[offset + 6] = texCoords[i].X;
-                    _vertices[offset + 7] = texCoords[i].Y;
-                    
-                    _vertices[offset + 8] = texID;
-                    
-                    offset += _vertexSize;
-                }
-            }
 
+                if(rotated)
+                    currentPos =  Input.Temp(t, new Vector4(xAdd, yAdd, 0, 1));
+                
+                Console.WriteLine(currentPos.X + " "  + currentPos.Y);
+                Console.WriteLine(currentPos.Z + " " + currentPos.W);
+                
+                _vertices[offset] =     currentPos.X;
+                _vertices[offset + 1] = currentPos.Y;
+                
+                _vertices[offset + 2] = color.X;
+                _vertices[offset + 3] = color.Y;
+                _vertices[offset + 4] = color.Z;
+                _vertices[offset + 5] = color.W;
+                
+                _vertices[offset + 6] = texCoords[i].X;
+                _vertices[offset + 7] = texCoords[i].Y;
+                
+                _vertices[offset + 8] = texID;
+                
+                offset += _vertexSize;
+            }
+            Console.WriteLine("/////////////////////////");
         }
 
         private int[] GenerateIndices()

@@ -120,6 +120,10 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Accord.Math": {
+              "target": "Package",
+              "version": "[3.8.2-alpha, )"
+            },
             "ImGui.NET.Docking": {
               "target": "Package",
               "version": "[1.75.0, )"

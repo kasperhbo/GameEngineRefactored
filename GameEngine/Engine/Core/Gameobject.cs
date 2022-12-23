@@ -77,7 +77,7 @@ public class Gameobject : Asset
     public void OnGui()
     {
         ImGui.SliderFloat2("Position: ", ref Transform.Position, 0, 10);
-        ImGui.SliderFloat3("Rotation: ", ref Transform.Rotation, 0, 10);
+        ImGui.SliderFloat3("Rotation: ", ref Transform.Rotation, 0, 360);
         ImGui.SliderFloat2("Scale: ", ref Transform.Scale, 0, 32);
                 
         foreach (var component in Components)

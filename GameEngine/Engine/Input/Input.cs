@@ -1,10 +1,11 @@
-﻿using System.Numerics;
+﻿using Accord.Math;
 using GameEngine.Engine.Core;
 using GameEngine.Engine.UI.Windows.Editor;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using Matrix4x4 = System.Numerics.Matrix4x4;
 using Vector2 = System.Numerics.Vector2;
 using Vector4 = OpenTK.Mathematics.Vector4;
 using Window = OpenTK.Windowing.GraphicsLibraryFramework.Window;
@@ -146,6 +147,71 @@ public class Input
     // }
     //
     public static Vector4 Temp(Matrix4 matrix4, Vector4 vector4)
+    {
+        double xN;
+        double yN;
+        double zN;
+        
+        float x = vector4.X;
+        float y = vector4.Y;
+        float z = vector4.Z;
+        float w = vector4.W;
+        
+        xN = Math.FusedMultiplyAdd(matrix4.M11, x, 
+            Math.FusedMultiplyAdd(matrix4.M21, y, 
+                Math.FusedMultiplyAdd(matrix4.M31, z, 
+                    matrix4.M41 * w)));
+        
+        yN = Math.FusedMultiplyAdd(matrix4.M12, x,
+            Math.FusedMultiplyAdd(matrix4.M22, y, 
+                Math.FusedMultiplyAdd(matrix4.M32, z, 
+                    matrix4.M42 * w)));
+        
+        zN = Math.FusedMultiplyAdd(matrix4.M13, x,
+            Math.FusedMultiplyAdd(matrix4.M23, y, 
+                Math.FusedMultiplyAdd(matrix4.M33, z, 
+                    matrix4.M43 * w)));
+      
+        
+        Vector4 dest = new((float)xN, (float)yN, (float)zN, w);
+        
+        return dest;
+    }
+    
+    public static Vector4 Temp2(Matrix4 matrix4, Vector4 vector4)
+    {
+        double xN;
+        double yN;
+        double zN;
+        
+        float x = vector4.X;
+        float y = vector4.Y;
+        float z = vector4.Z;
+        float w = vector4.W;
+        
+        xN = Math.FusedMultiplyAdd(   matrix4.M11, x, 
+            Math.FusedMultiplyAdd(    matrix4.M21, y, 
+                Math.FusedMultiplyAdd(matrix4.M31, z, 
+                                      matrix4.M41 * w)));
+        
+        yN = Math.FusedMultiplyAdd(      matrix4.M12, x,
+            Math.FusedMultiplyAdd(       matrix4.M22, y, 
+                Math.FusedMultiplyAdd(   matrix4.M32, z, 
+                                         matrix4.M42 * w)));
+        
+        zN = Math.FusedMultiplyAdd(      matrix4.M13, x,
+            Math.FusedMultiplyAdd(       matrix4.M23, y, 
+                Math.FusedMultiplyAdd(   matrix4.M33, z, 
+                                         matrix4.M43 * w)));
+
+        Vector4 dest = new((float)xN, (float)yN, (float)zN, w);
+        
+        return dest;
+    }
+    
+    public static Vector4 Multiply(Matrix4 matrix, Vector4 vector) => matrix * vector;
+    
+    public static Vector4 Temp(Matrix4x4 matrix4, Vector4 vector4)
     {
         double xN;
         double yN;
